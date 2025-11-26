@@ -3,6 +3,7 @@
   min-height: 100vh;
   position: relative;
   overflow: hidden;
+  background: #000000;
 }
 
 .screen-wrapper {

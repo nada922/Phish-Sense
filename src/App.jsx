@@ -3,13 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Intro from './screens/Intro'
 import Home from './screens/Home'
 import Analysis from './screens/Analysis'
+import QRCheck from './screens/QRCheck'
 import './App.css'
 
 function App() {
-  const screenOrder = useMemo(() => ['intro', 'home', 'analysis'], [])
+  const screenOrder = useMemo(() => ['intro', 'home', 'analysis', 'qrcheck'], [])
   const [currentScreen, setCurrentScreen] = useState('intro')
   const [direction, setDirection] = useState(1)
   const [pulseId, setPulseId] = useState(0)
+  const [urlToAnalyze, setUrlToAnalyze] = useState(null)
 
   const sharedEase = [0.83, 0, 0.17, 1]
 
@@ -111,8 +113,15 @@ function App() {
             exit="exit"
           >
             <Home 
-              onAnalyze={() => handleNavigate('analysis')}
+              onAnalyze={() => {
+                setUrlToAnalyze(null)
+                handleNavigate('analysis')
+              }}
               onBack={() => handleNavigate('intro')}
+              onQRCheck={() => {
+                setUrlToAnalyze(null)
+                handleNavigate('qrcheck')
+              }}
             />
           </motion.div>
         )}
@@ -127,7 +136,36 @@ function App() {
             animate="animate"
             exit="exit"
           >
-            <Analysis onBack={() => handleNavigate('home')} />
+            <Analysis 
+              onBack={() => {
+                setUrlToAnalyze(null)
+                handleNavigate('home')
+              }} 
+              initialUrl={urlToAnalyze}
+            />
+          </motion.div>
+        )}
+
+        {currentScreen === 'qrcheck' && (
+          <motion.div
+            key="qrcheck"
+            className="screen-wrapper"
+            variants={screenVariants}
+            custom={direction}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <QRCheck 
+              onBack={() => {
+                setUrlToAnalyze(null)
+                handleNavigate('home')
+              }}
+              onAnalyzeUrl={(url) => {
+                setUrlToAnalyze(url)
+                handleNavigate('analysis')
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

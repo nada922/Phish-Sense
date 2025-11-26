@@ -1,11 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import './Analysis.css'
 
-const Analysis = ({ onBack }) => {
-  const [inputValue, setInputValue] = useState('')
+const Analysis = ({ onBack, initialUrl }) => {
+  const [inputValue, setInputValue] = useState(initialUrl || '')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [results, setResults] = useState(null)
+
+  // Update input if initialUrl changes
+  useEffect(() => {
+    if (initialUrl) {
+      setInputValue(initialUrl)
+    }
+  }, [initialUrl])
 
   const handleAnalyze = async () => {
     if (!inputValue.trim()) return
@@ -15,15 +22,17 @@ const Analysis = ({ onBack }) => {
     // Simulate analysis (replace with actual API call)
     setTimeout(() => {
       const isPhishing = Math.random() > 0.5
+      const searchCount = Math.floor(Math.random() * 10000) + 1
+      const severityLevels = ['Low', 'Medium', 'High', 'Critical']
+      const severity = severityLevels[Math.floor(Math.random() * severityLevels.length)]
+      
       setResults({
         isPhishing,
         score: Math.floor(Math.random() * 100),
-        details: {
+        reputation: {
           url: inputValue,
-          domainAge: '2 years',
-          suspiciousKeywords: isPhishing ? ['urgent', 'verify', 'click'] : [],
-          sslValid: !isPhishing,
-          reputation: isPhishing ? 'Low' : 'High'
+          searchCount: searchCount,
+          severity: severity
         }
       })
       setIsAnalyzing(false)
@@ -43,7 +52,7 @@ const Analysis = ({ onBack }) => {
       <div className="analysis-content">
         <motion.button
           className="back-btn"
-          onClick={handleBack}
+          onClick={onBack}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           initial={{ x: -50, opacity: 0 }}
@@ -143,32 +152,20 @@ const Analysis = ({ onBack }) => {
                 <div className="result-details">
                   <div className="detail-item">
                     <span className="detail-label">URL:</span>
-                    <span className="detail-value">{results.details.url}</span>
+                    <span className="detail-value">{results.reputation.url}</span>
                   </div>
                   <div className="detail-item">
-                    <span className="detail-label">Domain Age:</span>
-                    <span className="detail-value">{results.details.domainAge}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">SSL Valid:</span>
-                    <span className={`detail-value ${results.details.sslValid ? 'valid' : 'invalid'}`}>
-                      {results.details.sslValid ? 'Yes' : 'No'}
+                    <span className="detail-label">Search Count:</span>
+                    <span className="detail-value">
+                      {results.reputation.searchCount.toLocaleString()} {results.reputation.searchCount === 1 ? 'person' : 'people'} searched
                     </span>
                   </div>
                   <div className="detail-item">
-                    <span className="detail-label">Reputation:</span>
-                    <span className={`detail-value ${results.details.reputation === 'High' ? 'valid' : 'invalid'}`}>
-                      {results.details.reputation}
+                    <span className="detail-label">Severity:</span>
+                    <span className={`detail-value severity-${results.reputation.severity.toLowerCase()}`}>
+                      {results.reputation.severity}
                     </span>
                   </div>
-                  {results.details.suspiciousKeywords.length > 0 && (
-                    <div className="detail-item">
-                      <span className="detail-label">Suspicious Keywords:</span>
-                      <span className="detail-value">
-                        {results.details.suspiciousKeywords.join(', ')}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
             </motion.div>
@@ -180,4 +177,5 @@ const Analysis = ({ onBack }) => {
 }
 
 export default Analysis
+
 

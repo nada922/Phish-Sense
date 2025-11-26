@@ -1,9 +1,15 @@
 import { motion } from 'framer-motion'
 import './Home.css'
 
-const Home = ({ onAnalyze, onBack }) => {
+const Home = ({ onAnalyze, onBack, onQRCheck }) => {
   const handleAnalyze = () => {
     onAnalyze()
+  }
+
+  const handleQRCheck = () => {
+    if (onQRCheck) {
+      onQRCheck()
+    }
   }
 
   const features = [
@@ -14,21 +20,15 @@ const Home = ({ onAnalyze, onBack }) => {
       color: '#00ffff'
     },
     {
-      icon: '🔲',
+      icon: '📱',
       title: 'QR Checks',
       description: 'Scan QR codes before they load dangerous sites',
       color: '#cc0066'
     },
     {
-      icon: '👁️',
-      title: 'Visual Red Flags',
-      description: 'Spot fake branding, typos, and urgency traps',
-      color: '#00c8ff'
-    },
-    {
-      icon: '📊',
-      title: 'Detailed Reports',
-      description: 'Comprehensive security insights',
+      icon: '⭐',
+      title: 'Reputation Scores',
+      description: 'See search frequency and threat severity ratings',
       color: '#00ffff'
     }
   ]
@@ -104,36 +104,24 @@ const Home = ({ onAnalyze, onBack }) => {
               variants={itemVariants}
               className="feature-card"
               whileHover={{ scale: 1.05, y: -10 }}
-              style={{ '--card-color': feature.color }}
+              whileTap={{ scale: 0.95 }}
+              onClick={
+                feature.title === 'URL Analysis' 
+                  ? handleAnalyze 
+                  : feature.title === 'QR Checks' 
+                  ? handleQRCheck 
+                  : undefined
+              }
+              style={{ 
+                '--card-color': feature.color,
+                cursor: (feature.title === 'URL Analysis' || feature.title === 'QR Checks') ? 'pointer' : 'default'
+              }}
             >
               <div className="feature-icon">{feature.icon}</div>
               <h3 className="feature-title">{feature.title}</h3>
               <p className="feature-description">{feature.description}</p>
             </motion.div>
           ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="cta-section"
-        >
-          <motion.button
-            className="analyze-btn"
-            onClick={handleAnalyze}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span>Start Analysis</span>
-            <motion.span
-              className="btn-icon"
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            >
-              ⚡
-            </motion.span>
-          </motion.button>
         </motion.div>
       </div>
     </motion.div>
