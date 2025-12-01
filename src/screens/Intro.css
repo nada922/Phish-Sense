@@ -63,9 +63,11 @@
 }
 
 .logo-icon {
-  font-size: 120px;
+  width: 120px;
+  height: auto;
   filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
   animation: float 3s ease-in-out infinite;
+  object-fit: contain;
 }
 
 @keyframes float {
@@ -180,7 +182,7 @@
   }
   
   .logo-icon {
-    font-size: 80px;
+    width: 80px;
   }
   
   .intro-subtitle {

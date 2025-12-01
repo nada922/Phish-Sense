@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import './Intro.css'
+import logo from '../assets/logo.png'
 
 const Intro = ({ onNext }) => {
   const [showContent, setShowContent] = useState(false)
@@ -64,7 +65,7 @@ const Intro = ({ onNext }) => {
               }}
               className="logo-container"
             >
-              <div className="logo-icon">🛡️</div>
+              <img src={logo} alt="PhishSense Logo" className="logo-icon" />
             </motion.div>
 
             <motion.h1
