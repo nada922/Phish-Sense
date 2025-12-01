@@ -120,6 +120,6 @@ const Intro = ({ onNext }) => {
     </motion.div>
   )
 }
-
+//nkrejjrke
 export default Intro
 
