@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Intro from './screens/Intro'
-import Home from './screens/Home'
-import Analysis from './screens/Analysis'
-import QRCheck from './screens/QRCheck'
-import './App.css'
+import Analysis from './screens/Analysis'  // Import only Analysis
+import './App.css'  // Remove Home and QRCheck imports
 
 function App() {
-  const screenOrder = useMemo(() => ['intro', 'home', 'analysis', 'qrcheck'], [])
+  // Remove 'home' and 'qrcheck' from screenOrder
+  const screenOrder = useMemo(() => ['intro', 'analysis'], [])
   const [currentScreen, setCurrentScreen] = useState('intro')
   const [direction, setDirection] = useState(1)
   const [pulseId, setPulseId] = useState(0)
@@ -87,7 +86,9 @@ function App() {
           style={{ transformOrigin: direction >= 0 ? 'left center' : 'right center' }}
         />
       </AnimatePresence>
+      
       <AnimatePresence mode="wait" custom={direction}>
+        {/* Only Intro and Analysis screens remain */}
         {currentScreen === 'intro' && (
           <motion.div
             key="intro"
@@ -98,31 +99,8 @@ function App() {
             animate="animate"
             exit="exit"
           >
-            <Intro onNext={() => handleNavigate('home')} />
-          </motion.div>
-        )}
-
-        {currentScreen === 'home' && (
-          <motion.div
-            key="home"
-            className="screen-wrapper"
-            variants={screenVariants}
-            custom={direction}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <Home 
-              onAnalyze={() => {
-                setUrlToAnalyze(null)
-                handleNavigate('analysis')
-              }}
-              onBack={() => handleNavigate('intro')}
-              onQRCheck={() => {
-                setUrlToAnalyze(null)
-                handleNavigate('qrcheck')
-              }}
-            />
+            {/* Go directly to Analysis from Intro */}
+            <Intro onNext={() => handleNavigate('analysis')} />
           </motion.div>
         )}
 
@@ -136,42 +114,21 @@ function App() {
             animate="animate"
             exit="exit"
           >
+            {/* Go back to Intro, not Home */}
             <Analysis 
               onBack={() => {
                 setUrlToAnalyze(null)
-                handleNavigate('home')
+                handleNavigate('intro')
               }} 
               initialUrl={urlToAnalyze}
             />
           </motion.div>
         )}
-
-        {currentScreen === 'qrcheck' && (
-          <motion.div
-            key="qrcheck"
-            className="screen-wrapper"
-            variants={screenVariants}
-            custom={direction}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <QRCheck 
-              onBack={() => {
-                setUrlToAnalyze(null)
-                handleNavigate('home')
-              }}
-              onAnalyzeUrl={(url) => {
-                setUrlToAnalyze(url)
-                handleNavigate('analysis')
-              }}
-            />
-          </motion.div>
-        )}
+        
+        {/* Remove Home and QRCheck sections entirely */}
       </AnimatePresence>
     </div>
   )
 }
 
 export default App
-

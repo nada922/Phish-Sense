@@ -10,20 +10,24 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow: auto !important; /* CHANGED FROM overflow-x: hidden */
   background: #000000;
   color: #ffffff;
+  height: 100%;
 }
 
 #root {
   width: 100%;
   min-height: 100vh;
+  overflow: visible !important; /* ADDED THIS */
 }
 
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
   background: #000000;
+  height: 100%;
+  overflow: auto !important; /* ADDED THIS */
 }
 
 /* Custom scrollbar */
@@ -45,4 +49,10 @@ html {
   background: linear-gradient(180deg, #00cccc, #cc0066);
   box-shadow: 0 0 12px rgba(0, 204, 204, 0.6);
 }
-
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important; /* Force no horizontal scroll */
+}
