@@ -1,0 +1,1089 @@
+/* =============== MAKE CONTAINER SCROLLABLE =============== */
+.analysis-container {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #000000;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 0, 150, 0.02) 0%, transparent 50%);
+}
+
+.analysis-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 0, 150, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(0, 200, 255, 0.02) 0%, transparent 50%);
+  animation: analysisPulse 6s ease-in-out infinite;
+}
+
+@keyframes analysisPulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.analysis-content {
+  position: relative;
+  z-index: 10;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+.back-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #00cccc;
+  background: rgba(0, 204, 204, 0.08);
+  border: 2px solid rgba(0, 204, 204, 0.25);
+  border-radius: 25px;
+  cursor: pointer;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 204, 204, 0.15);
+}
+
+.back-btn:hover {
+  background: rgba(0, 204, 204, 0.15);
+  border-color: #00cccc;
+  box-shadow: 0 0 25px rgba(0, 204, 204, 0.3);
+  transform: translateX(-5px);
+}
+
+.analysis-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.analysis-title {
+  font-size: 3rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.title-icon {
+  font-size: 3.5rem;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.analysis-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 300;
+}
+
+.input-section {
+  margin-bottom: 3rem;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 204, 204, 0.15);
+}
+
+.analysis-input {
+  flex: 1;
+  padding: 1.2rem 1.5rem;
+  font-size: 1.1rem;
+  color: #00cccc;
+  background: rgba(0, 204, 204, 0.05);
+  border: 2px solid rgba(0, 204, 204, 0.25);
+  border-radius: 15px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.analysis-input::placeholder {
+  color: rgba(0, 204, 204, 0.3);
+}
+
+.analysis-input:focus {
+  border-color: #00cccc;
+  box-shadow: 0 0 0 3px rgba(0, 204, 204, 0.15),
+              0 0 15px rgba(0, 204, 204, 0.25);
+  background: rgba(0, 204, 204, 0.06);
+}
+
+.analyze-button {
+  padding: 1.2rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000000;
+  background: linear-gradient(135deg, #00cccc, #cc0066);
+  border: 2px solid #00cccc;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 25px rgba(0, 204, 204, 0.3),
+              inset 0 0 12px rgba(0, 204, 204, 0.15);
+  min-width: 140px;
+}
+
+
+.analyze-button:hover:not(:disabled) {
+  box-shadow: 0 0 40px rgba(0, 204, 204, 0.5),
+              0 0 80px rgba(0, 204, 204, 0.25),
+              inset 0 0 20px rgba(0, 204, 204, 0.25);
+  transform: translateY(-3px) scale(1.05);
+}
+
+.analyze-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+/* =============== QR ICON BUTTON (Beside Analyze Button) =============== */
+.qr-icon-btn {
+  padding: 1rem 1.2rem;
+  font-size: 1.5rem;
+  color: #00cccc;
+  background: rgba(0, 204, 204, 0.08);
+  border: 2px solid rgba(0, 204, 204, 0.25);
+  border-radius: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  min-width: 60px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(0, 204, 204, 0.2);
+  flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.qr-icon-btn:hover {
+  background: rgba(0, 204, 204, 0.15);
+  border-color: #00cccc;
+  box-shadow: 0 0 25px rgba(0, 204, 204, 0.4),
+              0 0 50px rgba(0, 204, 204, 0.2);
+  transform: translateY(-2px);
+}
+
+.qr-icon {
+  filter: drop-shadow(0 0 8px rgba(0, 204, 204, 0.6));
+  display: block;
+  animation: qrIconPulse 2s ease-in-out infinite;
+}
+
+@keyframes qrIconPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+/* Update input-wrapper to include the new button */
+.input-wrapper {
+  display: flex;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 204, 204, 0.15);
+  align-items: center; /* Ensure vertical alignment */
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  max-width: 100%; /* Prevent overflow */
+}
+
+/* Adjust analyze button width to accommodate new button */
+.analyze-button {
+  padding: 1.2rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000000;
+  background: linear-gradient(135deg, #00cccc, #cc0066);
+  border: 2px solid #00cccc;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 25px rgba(0, 204, 204, 0.3),
+              inset 0 0 12px rgba(0, 204, 204, 0.15);
+  min-width: 120px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Update analysis-input to work with new layout */
+.analysis-input {
+  flex: 1;
+  padding: 1.2rem 1.5rem;
+  font-size: 1.1rem;
+  color: #00cccc;
+  background: rgba(0, 204, 204, 0.05);
+  border: 2px solid rgba(0, 204, 204, 0.25);
+  border-radius: 15px;
+  outline: none;
+  transition: all 0.3s ease;
+  min-width: 0; /* Important for flex shrink */
+}
+
+/* Responsive design for the new layout */
+@media (max-width: 768px) {
+  .input-wrapper {
+    flex-wrap: wrap;
+  }
+  
+  .analysis-input {
+    order: 1;
+    flex: 1 1 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .qr-icon-btn {
+    order: 2;
+    flex: 0 0 auto;
+    padding: 0.9rem 1rem;
+  }
+  
+  .analyze-button {
+    order: 3;
+    flex: 1 1 auto;
+    padding: 1rem 1.5rem;
+  }
+  
+  .qr-icon-btn,
+  .analyze-button {
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .qr-icon-btn {
+    padding: 0.8rem;
+    min-width: 50px;
+  }
+  
+  .analyze-button {
+    padding: 1rem;
+    font-size: 1rem;
+    min-width: 100px;
+  }
+  
+  .qr-icon {
+    font-size: 1.3rem;
+  }
+}
+.loading-section {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(0, 204, 204, 0.1);
+  border-top-color: #00cccc;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 15px rgba(0, 204, 204, 0.4);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.results-section {
+  margin-top: 2rem;
+}
+
+.result-card {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2.5rem;
+  border: 2px solid;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+.result-card.danger {
+  border-color: #cc0066;
+  box-shadow: 0 0 30px rgba(204, 0, 102, 0.3),
+              0 0 60px rgba(204, 0, 102, 0.15);
+}
+
+.result-card.safe {
+  border-color: #00cccc;
+  box-shadow: 0 0 30px rgba(0, 204, 204, 0.3),
+              0 0 60px rgba(0, 204, 204, 0.15);
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-icon {
+  font-size: 4rem;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+}
+
+.result-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.result-score {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.result-score span {
+  font-weight: 700;
+  color: white;
+}
+
+.result-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 204, 204, 0.1);
+}
+
+.detail-label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.detail-value {
+  color: white;
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+}
+
+.detail-value.valid {
+  color: #00cccc;
+  text-shadow: 0 0 8px rgba(0, 204, 204, 0.4);
+}
+
+.detail-value.invalid {
+  color: #cc0066;
+  text-shadow: 0 0 8px rgba(204, 0, 102, 0.4);
+}
+
+.detail-value.severity-low {
+  color: #00cccc;
+  text-shadow: 0 0 8px rgba(0, 204, 204, 0.4);
+}
+
+.detail-value.severity-medium {
+  color: #ffaa00;
+  text-shadow: 0 0 8px rgba(255, 170, 0, 0.4);
+}
+
+.detail-value.severity-high {
+  color: #ff6600;
+  text-shadow: 0 0 8px rgba(255, 102, 0, 0.4);
+}
+
+.detail-value.severity-critical {
+  color: #cc0066;
+  text-shadow: 0 0 8px rgba(204, 0, 102, 0.4);
+}
+
+/* =============== UPDATED QR OPTIONS SECTION - Now after results =============== */
+.qr-options-section {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(0, 204, 204, 0.2);
+  position: relative;
+}
+
+.qr-options-section::before {
+  content: '📱 Alternative Scan Method';
+  display: block;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 10px rgba(0, 204, 204, 0.3);
+}
+
+.qr-options {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* =============== ENHANCED QR OPTION BUTTONS - Match theme =============== */
+.qr-option-btn {
+  padding: 1.5rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 180px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.qr-option-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(0, 204, 204, 0.15) 0%, 
+    rgba(204, 0, 102, 0.15) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.qr-option-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 15px;
+  padding: 2px;
+  background: linear-gradient(135deg, #00cccc, #cc0066);
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1;
+}
+
+.qr-option-btn:hover::before {
+  opacity: 1;
+}
+
+.camera-btn {
+  background: rgba(0, 204, 204, 0.08);
+  border: 2px solid rgba(0, 204, 204, 0.3);
+}
+
+.camera-btn:hover {
+  background: rgba(0, 204, 204, 0.15);
+  border-color: #00cccc;
+  box-shadow: 
+    0 0 25px rgba(0, 204, 204, 0.4),
+    0 0 50px rgba(0, 204, 204, 0.2),
+    inset 0 0 15px rgba(0, 204, 204, 0.1);
+  transform: translateY(-5px) scale(1.03);
+}
+
+.upload-btn {
+  background: rgba(204, 0, 102, 0.08);
+  border: 2px solid rgba(204, 0, 102, 0.3);
+}
+
+.upload-btn:hover {
+  background: rgba(204, 0, 102, 0.15);
+  border-color: #cc0066;
+  box-shadow: 
+    0 0 25px rgba(204, 0, 102, 0.4),
+    0 0 50px rgba(204, 0, 102, 0.2),
+    inset 0 0 15px rgba(204, 0, 102, 0.1);
+  transform: translateY(-5px) scale(1.03);
+}
+
+.option-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 0 8px currentColor);
+  transition: all 0.3s ease;
+}
+
+.camera-btn .option-icon {
+  color: #00cccc;
+  text-shadow: 0 0 15px rgba(0, 204, 204, 0.6);
+}
+
+.upload-btn .option-icon {
+  color: #cc0066;
+  text-shadow: 0 0 15px rgba(204, 0, 102, 0.6);
+}
+
+.qr-option-btn:hover .option-icon {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 12px currentColor);
+}
+
+/* =============== ENHANCED SCANNER SECTIONS =============== */
+.scanner-section, .upload-section {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.qr-reader, .uploaded-image-container {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 2px solid;
+  position: relative;
+  box-shadow: 
+    0 0 25px rgba(0, 204, 204, 0.4),
+    0 0 50px rgba(0, 204, 204, 0.2);
+}
+
+.qr-reader {
+  border-color: #00cccc;
+}
+
+.uploaded-image-container {
+  border-color: #cc0066;
+}
+
+.uploaded-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.stop-scan-btn, .reset-btn {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, rgba(204, 0, 102, 0.2), rgba(0, 204, 204, 0.2));
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.stop-scan-btn:hover, .reset-btn:hover {
+  background: linear-gradient(135deg, rgba(204, 0, 102, 0.3), rgba(0, 204, 204, 0.3));
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+/* =============== ENHANCED ERROR MESSAGE =============== */
+.error-message {
+  background: linear-gradient(135deg, rgba(204, 0, 102, 0.15), rgba(0, 204, 204, 0.15));
+  border: 2px solid;
+  border-image: linear-gradient(135deg, #cc0066, #00cccc) 1;
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+  box-shadow: 0 0 25px rgba(204, 0, 102, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.error-icon {
+  font-size: 2rem;
+}
+
+.error-close-btn {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.error-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* =============== LOADING SUBTEXT =============== */
+.loading-subtext {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* =============== REPUTATION SCORE =============== */
+.reputation-score {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reputation-score::before {
+  content: '📊';
+  font-size: 1.2rem;
+}
+
+.reputation-score span {
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 8px rgba(0, 204, 204, 0.4);
+}
+
+/* =============== ENHANCED FEATURES BREAKDOWN =============== */
+.features-breakdown {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 15px;
+  border: 1px solid rgba(0, 204, 204, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.features-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.features-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #00cccc, #cc0066);
+  border-radius: 2px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.feature-item {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  background: rgba(0, 0, 0, 0.6);
+  border-color: rgba(0, 204, 204, 0.3);
+  transform: translateY(-3px);
+}
+
+.feature-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.feature-name {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+.feature-score {
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.feature-score.low { 
+  color: #00cccc; 
+  text-shadow: 0 0 8px rgba(0, 204, 204, 0.4);
+}
+
+.feature-score.medium { 
+  color: #ffaa00; 
+  text-shadow: 0 0 8px rgba(255, 170, 0, 0.4);
+}
+
+.feature-score.high { 
+  color: #ff6600; 
+  text-shadow: 0 0 8px rgba(255, 102, 0, 0.4);
+}
+
+.feature-score.critical { 
+  color: #cc0066; 
+  text-shadow: 0 0 8px rgba(204, 0, 102, 0.4);
+}
+
+.feature-severity {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.severity-low { 
+  color: #00cccc; 
+  text-shadow: 0 0 8px rgba(0, 204, 204, 0.4);
+}
+
+.severity-medium { 
+  color: #ffaa00; 
+  text-shadow: 0 0 8px rgba(255, 170, 0, 0.4);
+}
+
+.severity-high { 
+  color: #ff6600; 
+  text-shadow: 0 0 8px rgba(255, 102, 0, 0.4);
+}
+
+.severity-critical { 
+  color: #cc0066; 
+  text-shadow: 0 0 8px rgba(204, 0, 102, 0.4);
+}
+
+/* =============== SCANNING INDICATOR =============== */
+.scanning-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  border: 1px solid rgba(0, 204, 204, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+/* =============== ADD SCROLLBAR STYLING =============== */
+.analysis-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.analysis-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+}
+
+.analysis-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #00cccc, #cc0066);
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 204, 204, 0.4);
+}
+
+.analysis-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #00ffff, #ff0066);
+  box-shadow: 0 0 15px rgba(0, 204, 204, 0.6);
+}
+
+/* =============== RESPONSIVE DESIGN =============== */
+@media (max-width: 768px) {
+  .analysis-title {
+    font-size: 2rem;
+    flex-direction: column;
+  }
+  
+  .title-icon {
+    font-size: 2.5rem;
+  }
+  
+  .input-wrapper {
+    flex-direction: column;
+  }
+  
+  .analyze-button {
+    width: 100%;
+  }
+  
+  .result-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .detail-value {
+    text-align: left;
+  }
+  
+  .qr-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .qr-option-btn {
+    width: 100%;
+    padding: 1.2rem 1.5rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-item.url {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .detail-value.url {
+    word-break: break-all;
+  }
+  
+ .analysis-content {
+  position: relative;
+  z-index: 10;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem; /* Reduced padding */
+  min-height: 100vh;
+  padding-bottom: 3rem; /* Reduced bottom padding */
+  overflow-x: hidden; /* Prevent horizontal overflow */
+  box-sizing: border-box; /* Ensure padding doesn't increase width */
+}
+
+/* Update the input wrapper to prevent overflow */
+.input-wrapper {
+  display: flex;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 204, 204, 0.15);
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  max-width: 100%; /* Prevent overflow */
+}
+
+.analysis-input {
+  flex: 1;
+  padding: 1.2rem 1.5rem;
+  font-size: 1.1rem;
+  color: #00cccc;
+  background: rgba(0, 204, 204, 0.05);
+  border: 2px solid rgba(0, 204, 204, 0.25);
+  border-radius: 15px;
+  outline: none;
+  transition: all 0.3s ease;
+  min-width: 0; /* Important for flex shrink */
+  max-width: 100%; /* Prevent overflow */
+}
+
+/* Update result card to fit better */
+.result-card {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem; /* Reduced padding */
+  border: 2px solid;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  max-width: 100%; /* Ensure it doesn't overflow */
+  box-sizing: border-box;
+}
+
+/* Update QR options to fit better */
+.qr-options {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 100%; /* Prevent overflow */
+}
+
+.qr-option-btn {
+  padding: 1.2rem 1.5rem; /* Reduced padding */
+  font-size: 1rem; /* Slightly smaller font */
+  font-weight: 700;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem; /* Reduced gap */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 160px; /* Reduced min-width */
+  max-width: 100%; /* Prevent overflow */
+  backdrop-filter: blur(10px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Update features grid for better fit */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Adjusted minmax */
+  gap: 0.8rem; /* Reduced gap */
+}
+
+/* Update detail items */
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem; /* Reduced padding */
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 204, 204, 0.1);
+  flex-wrap: wrap; /* Allow wrapping */
+  max-width: 100%; /* Prevent overflow */
+}
+
+/* Add this to prevent text overflow */
+.detail-value {
+  color: white;
+  font-weight: 500;
+  text-align: right;
+  word-break: break-word; /* Better than break-all */
+  max-width: 100%; /* Prevent overflow */
+  overflow-wrap: break-word;
+}
+
+/* Update responsive design */
+@media (max-width: 768px) {
+  .analysis-title {
+    font-size: 2rem;
+    flex-direction: column;
+  }
+  
+  .title-icon {
+    font-size: 2rem; /* Smaller icon */
+  }
+  
+  .input-wrapper {
+    flex-direction: column;
+    padding: 0.8rem; /* Reduced padding */
+  }
+  
+  .analysis-input {
+    padding: 1rem 1.2rem; /* Reduced padding */
+  }
+  
+  .analyze-button {
+    width: 100%;
+    padding: 1rem 2rem; /* Reduced padding */
+    font-size: 1rem; /* Smaller font */
+  }
+  
+  .result-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem; /* Reduced gap */
+  }
+  
+  .result-icon {
+    font-size: 3rem; /* Smaller icon */
+  }
+  
+  .result-title {
+    font-size: 1.5rem; /* Smaller title */
+  }
+  
+  .features-breakdown {
+    padding: 1rem; /* Reduced padding */
+  }
+  
+  .features-title {
+    font-size: 1.3rem; /* Smaller title */
+  }
+  
+  .qr-options {
+    gap: 1rem; /* Reduced gap */
+  }
+  
+  .analysis-content {
+    padding: 1.5rem 1rem; /* Further reduced padding on mobile */
+  }
+}
+
+/* Add this to prevent any element from causing overflow */
+* {
+  max-width: 100%;
+}
+}
