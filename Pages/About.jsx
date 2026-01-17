@@ -13,28 +13,28 @@ import {
 export default function About() {
   const team = [
     {
-      name: 'Sarah Chen',
-      role: 'Chief Executive Officer',
-      bio: 'Former cybersecurity researcher with 15+ years fighting online fraud',
-      initial: 'SC'
+      name: 'Martin Amgad',
+      role: 'Cybersecurity Expert',
+      bio: 'Specialized in threat detection, security analysis, and protecting users from phishing attacks. Expert in identifying and mitigating online security risks.',
+      initial: 'MA'
     },
     {
-      name: 'Marcus Rodriguez',
-      role: 'Chief Technology Officer',
-      bio: 'AI/ML expert specializing in pattern recognition and threat detection',
-      initial: 'MR'
+      name: 'Nada Hesham',
+      role: 'Frontend Developer',
+      bio: 'Passionate about creating intuitive user interfaces and seamless user experiences. Expert in React development and modern web technologies.',
+      initial: 'NH'
     },
     {
-      name: 'Emily Watson',
-      role: 'Head of Security',
-      bio: 'Ethical hacker and security consultant for Fortune 500 companies',
-      initial: 'EW'
+      name: 'Girgis Samir',
+      role: 'Backend Developer',
+      bio: 'Expert in building robust server infrastructure, API development, and efficient data processing systems that power our security platform.',
+      initial: 'GS'
     },
     {
-      name: 'David Kim',
-      role: 'Lead Product Designer',
-      bio: 'Award-winning designer focused on security UX and accessibility',
-      initial: 'DK'
+      name: 'Bavly Wagdy',
+      role: 'AI & Machine Learning',
+      bio: 'Specialized in developing advanced AI models and machine learning algorithms for pattern recognition and intelligent threat detection systems.',
+      initial: 'BW'
     }
   ];
 
