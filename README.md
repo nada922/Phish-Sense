@@ -1,62 +1,88 @@
-# PhishSense - Phishing Detection Website
+# Phish Sense - React Website
 
-A beautiful, animated React.js frontend for a phishing detection system with multiple screens and smooth transitions.
+A modern React website for Phish Sense, an advanced phishing protection service.
 
-## Features
+## 🚀 Getting Started
 
-- 🎨 **Stunning Visual Design** - Vibrant colors and modern UI
-- ✨ **Smooth Animations** - Powered by Framer Motion
-- 📱 **Responsive Design** - Works on all devices
-- 🎯 **Multi-Screen Navigation** - Intro → Home → Analysis flow
-- 🛡️ **Interactive Analysis** - Real-time phishing detection interface
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
 
-## Installation
+### Installation
 
-1. Install dependencies:
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Open your browser:**
+   Navigate to `http://localhost:5173` (or the port shown in the terminal)
+
+### Build for Production
+
 ```bash
-npm install
+npm run build
 ```
 
-2. Start the development server:
+The built files will be in the `dist` directory.
+
+### Preview Production Build
+
 ```bash
-npm run dev
+npm run preview
 ```
 
-3. Open your browser and navigate to the URL shown in the terminal (usually `http://localhost:5173`)
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-src/
-├── screens/
-│   ├── Intro.jsx      # Animated intro screen
-│   ├── Intro.css
-│   ├── Home.jsx       # Home screen with features
-│   ├── Home.css
-│   ├── Analysis.jsx   # Analysis screen
-│   └── Analysis.css
-├── App.jsx            # Main app with routing
-├── main.jsx           # Entry point
-└── index.css          # Global styles
+Project2/
+├── src/
+│   ├── App.jsx          # Main app component with routing
+│   ├── main.jsx         # React entry point
+│   └── index.css        # Global styles with Tailwind
+├── Pages/               # Page components
+│   ├── Home.jsx
+│   ├── Features.jsx
+│   ├── About.jsx
+│   ├── Contact.jsx
+│   └── HowItWorks.jsx
+├── Componants/          # Reusable components
+│   ├── ui/              # UI component library
+│   └── UserNotRegisteredError.jsx
+├── layout.jsx           # Main layout wrapper
+├── utils.js             # Utility functions
+└── lib/
+    └── utils.js         # Class name utilities
 ```
 
-## Screens
+## 🛠️ Technologies Used
 
-1. **Intro Screen** - Animated welcome screen with gradient background
-2. **Home Screen** - Feature showcase with cards and CTA button
-3. **Analysis Screen** - Input form and results display
+- **React 18** - UI library
+- **React Router DOM** - Routing
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Lucide React** - Icons
+- **Radix UI** - Accessible component primitives
 
-## Technologies Used
+## 📝 Available Scripts
 
-- React 18
-- React Router DOM
-- Framer Motion (animations)
-- Vite (build tool)
-- CSS3 (styling)
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
 
-## Customization
+## 🎨 Features
 
-You can customize colors, animations, and content by editing the respective CSS and JSX files in the `src/screens/` directory.
+- Responsive design
+- Modern UI with Tailwind CSS
+- React Router for navigation
+- Component-based architecture
+- Accessible UI components
 
+## 📄 License
 
-
+This project is part of a graduation project.
