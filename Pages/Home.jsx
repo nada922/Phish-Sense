@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import apiService from '@/services/apiService';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -45,40 +46,47 @@ export default function Home() {
   const [url, setUrl] = useState('');
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
-  const handleAnalyze = () => {
-    if (url.trim()) {
-      setIsAnalyzing(true);
-      // Simulate analysis - replace with actual API call
+  // Check API health on component mount
+  useEffect(() => {
+    const checkAPI = async () => {
+      try {
+        await apiService.healthCheck();
+        setError(null);
+      } catch (err) {
+        console.warn('Backend API not available:', err.message);
+        setError('Backend service is not running. Please start the Flask server on http://localhost:5000');
+      }
+    };
+    checkAPI();
+  }, []);
+
+  const handleAnalyze = async () => {
+    if (!url.trim()) {
+      setError('Please enter a valid URL');
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setError(null);
+    
+    try {
+      // Call the backend API to analyze the URL
+      const result = await apiService.analyzeURL(url);
+      setAnalysisResult(result);
+      
+      // Scroll to results
       setTimeout(() => {
-        // Mock analysis result - replace with actual API response
-        const mockResult = {
-          url: url,
-          riskScore: Math.floor(Math.random() * 100),
-          status: Math.random() > 0.6 ? 'Safe' : Math.random() > 0.3 ? 'Suspicious' : 'Dangerous',
-          checks: {
-            domainReputation: Math.floor(Math.random() * 100),
-            sslCertificate: Math.floor(Math.random() * 100),
-            urlPattern: Math.floor(Math.random() * 100),
-            contentAnalysis: Math.floor(Math.random() * 100),
-            visualSimilarity: Math.floor(Math.random() * 100)
-          },
-          threats: {
-            phishing: Math.floor(Math.random() * 30),
-            malware: Math.floor(Math.random() * 20),
-            suspicious: Math.floor(Math.random() * 25),
-            safe: Math.floor(Math.random() * 25) + 50
-          }
-        };
-        setAnalysisResult(mockResult);
-        setIsAnalyzing(false);
-        
-        // Scroll to results
-        setTimeout(() => {
-          document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }, 1500);
+        document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } catch (err) {
+      console.error('Error analyzing URL:', err);
+      setError(err.message || 'Failed to analyze URL. Please try again.');
+      setAnalysisResult(null);
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -108,19 +116,32 @@ export default function Home() {
     fileInputRef.current?.click();
   };
 
-  const handleImageFileChange = (e) => {
+  const handleImageFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      // TODO: Implement image analysis logic
-      console.log('Image selected:', file.name);
+      setIsAnalyzing(true);
+      setError(null);
       
-      // You can read the file and extract URLs or analyze it
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        // Handle the image data
-        console.log('Image loaded');
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Send the image file to the backend for analysis
+        const result = await apiService.analyzeImage(file);
+        
+        // Optionally, display the image analysis results
+        console.log('Image analysis result:', result);
+        
+        // You can set a separate state for image analysis if needed
+        // or use setAnalysisResult if you want to show image results too
+        alert(`Image Analysis: Risk Score ${result.riskScore}%\n${result.details}`);
+      } catch (err) {
+        console.error('Error analyzing image:', err);
+        setError(err.message || 'Failed to analyze image. Please try again.');
+      } finally {
+        setIsAnalyzing(false);
+        // Reset the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
     }
   };
 
@@ -285,6 +306,17 @@ export default function Home() {
                 className="hidden"
               />
             </div>
+
+            {/* Error Alert */}
+            {error && (
+              <div className="mt-4 p-4 rounded-lg bg-red-50 border border-red-200 flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-red-900">Error</p>
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
