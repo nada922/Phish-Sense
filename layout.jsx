@@ -150,21 +150,21 @@ export default function Layout({ children, currentPageName }) {
                     Documentation
                   </a>
                 </li>
-                <li>
+                {/* <li>
                   <a href="#" className="hover:text-white transition-colors">
                     API Reference
                   </a>
-                </li>
-                <li>
+                </li> */}
+                {/* <li>
                   <a href="#" className="hover:text-white transition-colors">
                     Privacy Policy
                   </a>
-                </li>
-                <li>
+                </li> */}
+                {/* <li>
                   <a href="#" className="hover:text-white transition-colors">
                     Terms of Service
                   </a>
-                </li>
+                </li> */}
               </ul>
             </div>
 
@@ -173,7 +173,7 @@ export default function Layout({ children, currentPageName }) {
               <h3 className="font-semibold mb-4">Get in Touch</h3>
               <ul className="space-y-2 text-slate-400 text-sm">
                 <li>support@phishsense.com</li>
-                <li>+1 (555) 123-4567</li>
+                <li>+20 (11) 111-1111</li>
               </ul>
             </div>
           </div>

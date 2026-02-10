@@ -8,7 +8,6 @@ import {
   MapPin,
   Send,
   CheckCircle2,
-  Twitter,
   Linkedin,
   Github,
   MessageSquare
@@ -50,22 +49,36 @@ export default function Contact() {
     {
       icon: Phone,
       title: 'Phone',
-      content: '+1 (555) 123-4567',
+      content: '+20 111 111 1111',
       link: 'tel:+15551234567'
     },
     {
       icon: MapPin,
       title: 'Office',
-      content: 'San Francisco, CA 94102',
+      content: 'Modern Academy',
       link: null
     }
   ];
 
   const socialLinks = [
-    { icon: Twitter, name: 'Twitter', link: '#', color: 'from-blue-400 to-blue-600' },
-    { icon: Linkedin, name: 'LinkedIn', link: '#', color: 'from-blue-600 to-blue-800' },
-    { icon: Github, name: 'GitHub', link: '#', color: 'from-slate-600 to-slate-800' },
-    { icon: MessageSquare, name: 'Discord', link: '#', color: 'from-indigo-500 to-purple-600' }
+    {
+      icon: Github,
+      name: 'GitHub',
+      link: 'https://github.com/nada922/Phish-Sense',
+      color: 'from-slate-600 to-slate-800'
+    },
+    {
+      icon: Linkedin,
+      name: 'LinkedIn',
+      link: 'https://www.linkedin.com/',
+      color: 'from-blue-600 to-blue-800'
+    },
+    {
+      icon: MessageSquare,
+      name: 'Discord',
+      link: 'https://discord.com/',
+      color: 'from-indigo-500 to-purple-600'
+    }
   ];
 
   return (

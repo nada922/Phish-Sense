@@ -822,13 +822,13 @@ export default function Home() {
           <p className="text-xl text-slate-600 mb-10">
             Download Phish Sense now and start browsing with confidence
           </p>
-          <Button
+          {/* <Button
             size="lg"
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40 transition-all text-lg px-10 py-6 group"
           >
             Get Started for Free
             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          </Button> */}
         </div>
       </section>
     </div>
