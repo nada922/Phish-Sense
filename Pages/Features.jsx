@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Shield,
   Zap,
@@ -15,6 +16,8 @@ import {
 } from 'lucide-react';
 
 export default function Features() {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: Brain,
@@ -248,7 +251,10 @@ export default function Features() {
           <p className="text-xl text-slate-600 mb-10">
             Get started with Phish Sense and enjoy enterprise-grade security for free
           </p>
-          <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40 transition-all">
+          <button
+            onClick={() => navigate('/#search-analysis')}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40 transition-all"
+          >
             Download Phish Sense
           </button>
         </div>

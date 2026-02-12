@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -46,6 +47,15 @@ export default function Home() {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === '#search-analysis') {
+      setTimeout(() => {
+        document.getElementById('search-analysis')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [location]);
 
   const handleAnalyze = () => {
     if (url.trim()) {
@@ -73,7 +83,7 @@ export default function Home() {
         };
         setAnalysisResult(mockResult);
         setIsAnalyzing(false);
-        
+
         // Scroll to results
         setTimeout(() => {
           document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
@@ -85,17 +95,17 @@ export default function Home() {
   const handleQRCodeClick = async () => {
     try {
       // Request camera access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' } // Use back camera on mobile
       });
-      
+
       // TODO: Implement QR code scanning logic
       // You can use libraries like html5-qrcode or jsQR
       console.log('Camera accessed for QR code scanning');
-      
+
       // For now, just show an alert - you'll need to implement actual QR scanning
       alert('Camera access granted. QR code scanning functionality needs to be implemented.');
-      
+
       // Stop the stream (you'll handle this in your QR scanner component)
       stream.getTracks().forEach(track => track.stop());
     } catch (error) {
@@ -113,7 +123,7 @@ export default function Home() {
     if (file) {
       // TODO: Implement image analysis logic
       console.log('Image selected:', file.name);
-      
+
       // You can read the file and extract URLs or analyze it
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -222,7 +232,7 @@ export default function Home() {
           </div>
 
           {/* URL Analysis Box */}
-          <div className="max-w-2xl mx-auto mt-8 mb-8 px-4">
+          <div id="search-analysis" className="max-w-2xl mx-auto mt-8 mb-8 px-4 scroll-mt-24">
             <div className="flex gap-3 items-center">
               <div className="flex-1 flex gap-2 items-center bg-white/80 backdrop-blur-sm rounded-full border-2 border-slate-200 shadow-lg p-2 focus-within:border-blue-500 focus-within:shadow-blue-500/20 transition-all">
                 <Input
@@ -275,7 +285,7 @@ export default function Home() {
               >
                 <Upload className="w-6 h-6" />
               </button>
-              
+
               {/* Hidden File Input */}
               <input
                 ref={fileInputRef}
@@ -371,7 +381,7 @@ export default function Home() {
                               legend: { display: false },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context) {
+                                  label: function (context) {
                                     return `${context.parsed.y}% secure`;
                                   }
                                 }
@@ -382,7 +392,7 @@ export default function Home() {
                                 beginAtZero: true,
                                 max: 100,
                                 ticks: {
-                                  callback: function(value) {
+                                  callback: function (value) {
                                     return value + '%';
                                   }
                                 }
@@ -425,7 +435,7 @@ export default function Home() {
                               },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context) {
+                                  label: function (context) {
                                     return `${context.label}: ${context.parsed}%`;
                                   }
                                 }
@@ -509,7 +519,7 @@ export default function Home() {
                               legend: { display: false },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context) {
+                                  label: function (context) {
                                     return `${context.parsed.y}% - ${context.parsed.y < 70 ? 'Needs attention' : 'Moderate risk'}`;
                                   }
                                 }
@@ -520,7 +530,7 @@ export default function Home() {
                                 beginAtZero: true,
                                 max: 100,
                                 ticks: {
-                                  callback: function(value) {
+                                  callback: function (value) {
                                     return value + '%';
                                   }
                                 }
@@ -569,7 +579,7 @@ export default function Home() {
                               },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context) {
+                                  label: function (context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((context.parsed / total) * 100).toFixed(1);
                                     return `${context.label}: ${percentage}%`;
@@ -655,7 +665,7 @@ export default function Home() {
                               legend: { display: false },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context) {
+                                  label: function (context) {
                                     return `${context.parsed.y}% - High risk detected`;
                                   }
                                 }
@@ -666,7 +676,7 @@ export default function Home() {
                                 beginAtZero: true,
                                 max: 100,
                                 ticks: {
-                                  callback: function(value) {
+                                  callback: function (value) {
                                     return value + '%';
                                   }
                                 }
@@ -718,7 +728,7 @@ export default function Home() {
                               },
                               tooltip: {
                                 callbacks: {
-                                  label: function(context) {
+                                  label: function (context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((context.parsed / total) * 100).toFixed(1);
                                     return `${context.label}: ${percentage}%`;

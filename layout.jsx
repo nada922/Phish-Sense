@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { Shield, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import InteractiveBackground from '@/components/ui/InteractiveBackground';
 import Logo from './Componants/Logo';
 
 export default function Layout({ children, currentPageName }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,14 +33,14 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen relative overflow-hidden">
+      <InteractiveBackground />
       {/* Navigation */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/80 backdrop-blur-xl shadow-lg shadow-indigo-500/5'
-            : 'bg-transparent'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+          ? 'bg-white/80 backdrop-blur-xl shadow-lg shadow-indigo-500/5'
+          : 'bg-transparent'
+          }`}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -51,11 +53,10 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.path}
                   to={createPageUrl(item.path)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    isActive(item.path)
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${isActive(item.path)
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
+                    }`}
                 >
                   {item.name}
                 </Link>
@@ -64,7 +65,16 @@ export default function Layout({ children, currentPageName }) {
 
             {/* CTA Button - Desktop */}
             <div className="hidden md:block">
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all">
+              <Button
+                onClick={() => {
+                  if (location.pathname !== '/' && location.pathname !== '/home') {
+                    navigate('/#search-analysis');
+                  } else {
+                    document.getElementById('search-analysis')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
+              >
                 Get Started
               </Button>
             </div>
@@ -92,16 +102,25 @@ export default function Layout({ children, currentPageName }) {
                   key={item.path}
                   to={createPageUrl(item.path)}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-4 py-3 rounded-lg font-medium transition-all ${
-                    isActive(item.path)
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-slate-600 hover:bg-slate-50'
-                  }`}
+                  className={`block px-4 py-3 rounded-lg font-medium transition-all ${isActive(item.path)
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-slate-600 hover:bg-slate-50'
+                    }`}
                 >
                   {item.name}
                 </Link>
               ))}
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white mt-4">
+              <Button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  if (location.pathname !== '/' && location.pathname !== '/home') {
+                    navigate('/#search-analysis');
+                  } else {
+                    document.getElementById('search-analysis')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white mt-4"
+              >
                 Get Started
               </Button>
             </div>

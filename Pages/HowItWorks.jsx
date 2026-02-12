@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Globe,
   Search,
@@ -12,6 +13,8 @@ import {
 } from 'lucide-react';
 
 export default function HowItWorks() {
+  const navigate = useNavigate();
+
   const steps = [
     {
       number: '01',
@@ -127,9 +130,8 @@ export default function HowItWorks() {
             {steps.map((step, index) => (
               <div
                 key={index}
-                className={`flex flex-col ${
-                  index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                } gap-12 items-center`}
+                className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                  } gap-12 items-center`}
               >
                 {/* Icon Side */}
                 <div className="flex-1 flex justify-center">
@@ -309,7 +311,10 @@ export default function HowItWorks() {
           <p className="text-xl text-slate-600 mb-10">
             Join millions of users who trust Phish Sense for their online security
           </p>
-          <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40 transition-all">
+          <button
+            onClick={() => navigate('/#search-analysis')}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/40 transition-all"
+          >
             Get Started Now
           </button>
         </div>
