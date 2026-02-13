@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import apiService from '@/services/apiService';
@@ -58,38 +59,28 @@ export default function Home() {
     }
   }, [location]);
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (url.trim()) {
       setIsAnalyzing(true);
-      // Simulate analysis - replace with actual API call
-      setTimeout(() => {
-        // Mock analysis result - replace with actual API response
-        const mockResult = {
-          url: url,
-          riskScore: Math.floor(Math.random() * 100),
-          status: Math.random() > 0.6 ? 'Safe' : Math.random() > 0.3 ? 'Suspicious' : 'Dangerous',
-          checks: {
-            domainReputation: Math.floor(Math.random() * 100),
-            sslCertificate: Math.floor(Math.random() * 100),
-            urlPattern: Math.floor(Math.random() * 100),
-            contentAnalysis: Math.floor(Math.random() * 100),
-            visualSimilarity: Math.floor(Math.random() * 100)
-          },
-          threats: {
-            phishing: Math.floor(Math.random() * 30),
-            malware: Math.floor(Math.random() * 20),
-            suspicious: Math.floor(Math.random() * 25),
-            safe: Math.floor(Math.random() * 25) + 50
-          }
-        };
-        setAnalysisResult(mockResult);
-        setIsAnalyzing(false);
-        
+      setError(null);
+      setAnalysisResult(null);
+
+      try {
+        const result = await apiService.analyzeURL(url);
+        setAnalysisResult(result);
+
         // Scroll to results
         setTimeout(() => {
           document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
-      }, 1500);
+      } catch (err) {
+        console.error('Analysis error:', err);
+        setError(err.message || 'An error occurred during analysis. Please try again.');
+        // Reset analyzing state on error
+        setAnalysisResult(null);
+      } finally {
+        setIsAnalyzing(false);
+      }
     }
   };
 
@@ -124,7 +115,7 @@ export default function Home() {
     if (file) {
       // TODO: Implement image analysis logic
       console.log('Image selected:', file.name);
-      
+
       // You can read the file and extract URLs or analyze it
       const reader = new FileReader();
       reader.onload = (event) => {
