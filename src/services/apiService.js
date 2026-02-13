@@ -15,7 +15,7 @@ class PhishSenseAPI {
    */
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     try {
       const response = await fetch(url, {
         headers: {
@@ -33,6 +33,10 @@ class PhishSenseAPI {
       return await response.json();
     } catch (error) {
       console.error(`API Error [${endpoint}]:`, error);
+      // Replace "Failed to fetch" with a more user-friendly message
+      if (error.message === 'Failed to fetch') {
+        throw new Error('Server Error, Please run the backend server');
+      }
       throw error;
     }
   }
@@ -99,7 +103,7 @@ class PhishSenseAPI {
     formData.append('file', file);
 
     const url = `${this.baseURL}/api/analyze/image`;
-    
+
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -133,7 +137,7 @@ class PhishSenseAPI {
     formData.append('image', imageFile);
 
     const url = `${this.baseURL}/api/qr-scan`;
-    
+
     try {
       const response = await fetch(url, {
         method: 'POST',
