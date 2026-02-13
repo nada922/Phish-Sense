@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 export default function Contact() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -76,7 +78,7 @@ export default function Contact() {
     {
       icon: MessageSquare,
       name: 'Discord',
-      link: 'https://discord.com/',
+      link: 'https://discord.gg/4sU7zBVV',
       color: 'from-indigo-500 to-purple-600'
     }
   ];
@@ -314,6 +316,7 @@ export default function Contact() {
               View FAQ
             </Button>
             <Button
+              onClick={() => navigate('/how-it-works')}
               variant="outline"
               className="border-2 border-slate-300 hover:border-blue-600 hover:bg-blue-50 text-slate-700 hover:text-blue-600 text-lg px-8 py-6"
             >

@@ -59,28 +59,47 @@ export default function Home() {
     }
   }, [location]);
 
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
   const handleAnalyze = async () => {
-    if (url.trim()) {
-      setIsAnalyzing(true);
-      setError(null);
+    setError(null);
+    setAnalysisResult(null);
+
+    // Basic validation
+    if (!url.trim()) {
+      setError('Please enter a URL');
+      return;
+    }
+
+    if (!isValidUrl(url)) {
+      setError('Please enter a valid URL (e.g., https://example.com)');
+      return;
+    }
+
+    setIsAnalyzing(true);
+
+    try {
+      const result = await apiService.analyzeURL(url);
+      setAnalysisResult(result);
+
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } catch (err) {
+      console.error('Analysis error:', err);
+      setError(err.message || 'An error occurred during analysis. Please try again.');
+      // Reset analyzing state on error
       setAnalysisResult(null);
-
-      try {
-        const result = await apiService.analyzeURL(url);
-        setAnalysisResult(result);
-
-        // Scroll to results
-        setTimeout(() => {
-          document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      } catch (err) {
-        console.error('Analysis error:', err);
-        setError(err.message || 'An error occurred during analysis. Please try again.');
-        // Reset analyzing state on error
-        setAnalysisResult(null);
-      } finally {
-        setIsAnalyzing(false);
-      }
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 

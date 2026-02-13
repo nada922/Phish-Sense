@@ -165,9 +165,12 @@ export default function Layout({ children, currentPageName }) {
               <h3 className="font-semibold mb-4">Resources</h3>
               <ul className="space-y-2 text-slate-400 text-sm">
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <Link
+                    to={createPageUrl('HowItWorks')}
+                    className="hover:text-white transition-colors"
+                  >
                     Documentation
-                  </a>
+                  </Link>
                 </li>
                 {/* <li>
                   <a href="#" className="hover:text-white transition-colors">
