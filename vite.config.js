@@ -13,7 +13,8 @@ export default defineConfig({
       '@/components/ui': path.resolve(__dirname, 'Componants/ui'),
       '@/components': path.resolve(__dirname, 'Componants'),
       '@/lib': path.resolve(__dirname, 'lib'),
-      '@': path.resolve(__dirname, './'),
+      '@/services': path.resolve(__dirname, 'src/services'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
 })

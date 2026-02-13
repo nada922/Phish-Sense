@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import apiService from '@/services/apiService';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,6 +46,7 @@ export default function Home() {
   const [url, setUrl] = useState('');
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const location = useLocation();
 
@@ -83,7 +84,7 @@ export default function Home() {
         };
         setAnalysisResult(mockResult);
         setIsAnalyzing(false);
-
+        
         // Scroll to results
         setTimeout(() => {
           document.getElementById('analysis-results')?.scrollIntoView({ behavior: 'smooth' });
@@ -118,12 +119,12 @@ export default function Home() {
     fileInputRef.current?.click();
   };
 
-  const handleImageFileChange = (e) => {
+  const handleImageFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
       // TODO: Implement image analysis logic
       console.log('Image selected:', file.name);
-
+      
       // You can read the file and extract URLs or analyze it
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -295,6 +296,17 @@ export default function Home() {
                 className="hidden"
               />
             </div>
+
+            {/* Error Alert */}
+            {error && (
+              <div className="mt-4 p-4 rounded-lg bg-red-50 border border-red-200 flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-red-900">Error</p>
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
