@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Layout from '../layout'
 import Home from '../Pages/Home'
@@ -9,7 +9,12 @@ import HowItWorks from '../Pages/HowItWorks'
 
 function App() {
   const location = useLocation()
-  
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+
   // Extract page name from path
   const getPageName = () => {
     const path = location.pathname
