@@ -333,6 +333,13 @@ export default function Home() {
               <p className="text-xl text-slate-600 max-w-2xl mx-auto">
                 Comprehensive security analysis for <span className="font-semibold text-blue-600 break-all">{analysisResult.url}</span>
               </p>
+              {/* AI Model Badge */}
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium">
+                <Brain className="w-4 h-4" />
+                {analysisResult.ai_model_active
+                  ? `AI Model Active · Confidence: ${analysisResult.confidence}%`
+                  : 'Heuristic Mode (AI server offline)'}
+              </div>
             </div>
 
             {/* Protection Level Card - Show Only One Based on Status */}
@@ -431,10 +438,10 @@ export default function Home() {
                       <div className="h-48">
                         <Doughnut
                           data={{
-                            labels: ['Safe', 'Verified'],
+                            labels: ['Safe', 'Risk'],
                             datasets: [
                               {
-                                data: [analysisResult.riskScore, 100 - analysisResult.riskScore],
+                                data: [100 - analysisResult.riskScore, analysisResult.riskScore],
                                 backgroundColor: [
                                   'rgba(34, 197, 94, 0.8)',
                                   'rgba(226, 232, 240, 0.8)'
@@ -467,7 +474,7 @@ export default function Home() {
                         />
                       </div>
                       <div className="text-center mt-2">
-                        <span className="text-3xl font-bold text-green-600">{analysisResult.riskScore}%</span>
+                        <span className="text-3xl font-bold text-green-600">{100 - analysisResult.riskScore}%</span>
                         <p className="text-sm text-slate-600">Safety Score</p>
                       </div>
                     </div>
@@ -767,6 +774,46 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* AI Model Details & Feature Breakdown */}
+            <div className="max-w-4xl mx-auto mt-6 bg-white rounded-2xl border border-slate-200 p-6 shadow-lg">
+              <h4 className="text-lg font-semibold text-slate-900 mb-2">AI Model Analysis Details</h4>
+              <p className="text-slate-600 text-sm mb-4">{analysisResult.details}</p>
+
+              {/* Feature grid – only show if AI was active */}
+              {analysisResult.ai_model_active && analysisResult.checks && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { label: 'Domain Risk', value: analysisResult.checks.domainReputation },
+                    { label: 'SSL / HTTPS', value: analysisResult.checks.sslCertificate },
+                    { label: 'URL Pattern', value: analysisResult.checks.urlPattern },
+                    { label: 'Page Content', value: analysisResult.checks.contentAnalysis },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="bg-slate-50 rounded-xl p-3 text-center">
+                      <div
+                        className={`text-2xl font-bold mb-1 ${value >= 70 ? 'text-red-600'
+                            : value >= 40 ? 'text-yellow-600'
+                              : 'text-green-600'
+                          }`}
+                      >
+                        {value}%
+                      </div>
+                      <div className="text-xs text-slate-500">{label}</div>
+                      {/* Mini progress bar */}
+                      <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${value >= 70 ? 'bg-red-500'
+                              : value >= 40 ? 'bg-yellow-500'
+                                : 'bg-green-500'
+                            }`}
+                          style={{ width: `${value}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
