@@ -8,210 +8,177 @@ logger = logging.getLogger(__name__)
 
 
 class URLAnalyzer:
-    """Analyze URLs for phishing and malware threats"""
-    
+    """Analyze URLs for phishing threats using the XGBoost AI model (port 5001)."""
+
     def __init__(self):
-        # You can integrate real threat intelligence APIs here
-        # Examples: VirusTotal, URLhaus, PhishTank, etc.
-        pass
-    
+        # AI Model API endpoint (running from ai_model_server.py)
+        self.ai_api_url = "http://localhost:5001/predict"
+
     def analyze(self, url):
         """
-        Analyze a URL and return threat analysis
+        Analyze a URL and return threat analysis with real AI model data.
         """
         try:
-            # Validate URL format
-            if not self._is_valid_url(url):
-                return {
-                    "url": url,
-                    "riskScore": 95,
-                    "status": "Dangerous",
-                    "checks": {
-                        "domainReputation": 10,
-                        "sslCertificate": 15,
-                        "urlPattern": 90,
-                        "contentAnalysis": 0,
-                        "visualSimilarity": 0
-                    },
-                    "threats": {
-                        "phishing": 0,
-                        "malware": 0,
-                        "suspicious": 100,
-                        "safe": 0
-                    },
-                    "details": "Invalid URL format",
-                    "timestamp": datetime.now().isoformat()
+            # Call the AI Model server
+            ai_result = self._call_ai_model(url)
+
+            if "error" not in ai_result:
+                # ── Real AI model data is available ───────────────────────────
+                features   = ai_result.get("features", {})
+                risk_score = ai_result.get("riskScore", 0)
+                label      = ai_result.get("label", "Safe")
+                confidence = ai_result.get("confidence", 0)
+
+                # Map the 16 XGBoost features into 4 chart categories (0-100 risk scale).
+                # Higher value = more risky.
+
+                # Domain Reputation: IP in URL, @ sign, DNS record, prefix/suffix hyphen
+                domain_risk = (
+                    features.get("Having_IP",    0) * 30 +
+                    features.get("At_Sign",       0) * 25 +
+                    features.get("DNS_Record",    0) * 30 +
+                    features.get("Prefix_Suffix", 0) * 15
+                )
+
+                # SSL Certificate: no HTTPS = high risk; TinyURL shorteners add risk
+                ssl_risk = (
+                    (1 - features.get("HTTPS_Domain", 0)) * 70 +
+                    features.get("TinyURL", 0) * 30
+                )
+
+                # URL Pattern: length, depth, redirection, shortener services
+                url_risk = (
+                    features.get("URL_Length",  0) * 20 +
+                    features.get("URL_Depth",   0) * 10 +
+                    features.get("Redirection", 0) * 40 +
+                    features.get("TinyURL",     0) * 30
+                )
+
+                # Content Analysis: iframe injection, mouseover tricks, right-click, forwards
+                content_risk = (
+                    features.get("iFrame",       0) * 30 +
+                    features.get("Mouse_Over",   0) * 25 +
+                    features.get("Right_Click",  0) * 20 +
+                    features.get("Web_Forwards", 0) * 25
+                )
+
+                checks = {
+                    "domainReputation": min(int(domain_risk),  100),
+                    "sslCertificate":   min(int(ssl_risk),     100),
+                    "urlPattern":       min(int(url_risk),     100),
+                    "contentAnalysis":  min(int(content_risk), 100),
+                    "visualSimilarity": int(confidence) if label == "Phishing" else 0,
                 }
-            
-            # Run multiple checks
-            checks = {
-                "domainReputation": self._check_domain_reputation(url),
-                "sslCertificate": self._check_ssl_certificate(url),
-                "urlPattern": self._check_url_pattern(url),
-                "contentAnalysis": self._check_content_analysis(url),
-                "visualSimilarity": self._check_visual_similarity(url)
-            }
-            
-            # Calculate risk score
-            risk_score = self._calculate_risk_score(checks)
-            
-            # Categorize threats
-            threats = self._categorize_threats(checks, risk_score)
-            
-            # Determine status
+
+            else:
+                # ── Fallback: AI server is down – use lightweight heuristics ──
+                logger.warning(
+                    f"AI Model Server unavailable: {ai_result.get('message')}. "
+                    "Falling back to heuristics."
+                )
+                checks = {
+                    "domainReputation": self._check_domain_reputation(url),
+                    "sslCertificate":   self._check_ssl_certificate(url),
+                    "urlPattern":       self._check_url_pattern(url),
+                    "contentAnalysis":  15,
+                    "visualSimilarity": 10,
+                }
+                risk_score = self._calculate_risk_score(checks)
+                label      = "Phishing" if risk_score >= 70 else ("Suspicious" if risk_score >= 40 else "Safe")
+                confidence = risk_score
+
+            # Determine status from risk score
             if risk_score >= 70:
                 status = "Dangerous"
             elif risk_score >= 40:
                 status = "Suspicious"
             else:
                 status = "Safe"
-            
-            return {
-                "url": url,
-                "riskScore": risk_score,
-                "status": status,
-                "checks": checks,
-                "threats": threats,
-                "details": self._get_details(checks, status),
-                "timestamp": datetime.now().isoformat()
+
+            # Threat breakdown for the doughnut chart
+            threats = {
+                "phishing":   checks["domainReputation"],
+                "malware":    checks["sslCertificate"],
+                "suspicious": checks["urlPattern"],
+                "safe":       max(0, 100 - int(risk_score)),
             }
-        
+
+            return {
+                "url":             url,
+                "riskScore":       int(risk_score),
+                "status":          status,
+                "label":           label,
+                "confidence":      confidence,
+                "checks":          checks,
+                "threats":         threats,
+                "details":         self._get_details(checks, status, ai_result),
+                "timestamp":       datetime.now().isoformat(),
+                "ai_model_active": "error" not in ai_result,
+            }
+
         except Exception as e:
             logger.error(f"Error analyzing URL {url}: {str(e)}")
             return {
-                "url": url,
+                "url":       url,
                 "riskScore": 50,
-                "status": "Suspicious",
-                "checks": {
-                    "domainReputation": 50,
-                    "sslCertificate": 50,
-                    "urlPattern": 50,
-                    "contentAnalysis": 50,
-                    "visualSimilarity": 50
-                },
-                "threats": {
-                    "phishing": 25,
-                    "malware": 25,
-                    "suspicious": 25,
-                    "safe": 25
-                },
-                "details": "Error during analysis",
-                "timestamp": datetime.now().isoformat()
+                "status":    "Suspicious",
+                "checks":    {"error": True},
+                "details":   f"Error during analysis: {str(e)}",
+                "timestamp": datetime.now().isoformat(),
             }
-    
-    def _is_valid_url(self, url):
-        """Check if URL has valid format"""
+
+    def _call_ai_model(self, url):
+        """Call the XGBoost AI API running on port 5001."""
         try:
-            result = urlparse(url)
-            return all([result.scheme, result.netloc])
-        except:
-            return False
-    
+            response = requests.post(self.ai_api_url, json={"url": url}, timeout=30)
+            if response.status_code == 200:
+                return response.json()
+            return {"error": True, "message": f"API returned status {response.status_code}"}
+        except Exception as e:
+            return {"error": True, "message": str(e)}
+
+    # ── Heuristic fallbacks (only used when AI server is unavailable) ──────────
+
     def _check_domain_reputation(self, url):
-        """Check domain reputation (0-100, higher = riskier)"""
         try:
-            # TODO: Integrate with threat intelligence APIs
-            # For now, return a simulated score
             domain = urlparse(url).netloc
-            
-            # Check for suspicious patterns
             suspicious_keywords = ['verify', 'update', 'confirm', 'reset', 'login', 'secure', 'account']
-            if any(keyword in domain.lower() for keyword in suspicious_keywords):
+            if any(kw in domain.lower() for kw in suspicious_keywords):
                 return 65
-            
             return 20
-        except:
+        except Exception:
             return 50
-    
+
     def _check_ssl_certificate(self, url):
-        """Check SSL certificate validity (0-100, higher = riskier)"""
-        try:
-            if not url.startswith('https'):
-                return 70  # High risk if no HTTPS
-            
-            # TODO: Validate SSL certificate
-            return 10
-        except:
-            return 50
-    
+        return 70 if not url.startswith('https') else 10
+
     def _check_url_pattern(self, url):
-        """Check for suspicious URL patterns (0-100, higher = riskier)"""
         score = 0
-        
-        # Check for unusual characters
         if re.search(r'[^a-zA-Z0-9.-]', urlparse(url).netloc):
             score += 20
-        
-        # Check for IP address instead of domain
         if re.match(r'https?://\d+\.\d+\.\d+\.\d+', url):
             score += 40
-        
-        # Check for long URL
         if len(url) > 100:
             score += 15
-        
-        # Check for URL shortener
-        shorteners = ['bit.ly', 'tinyurl.com', 'short.link', 'goo.gl']
-        if any(shortener in url.lower() for shortener in shorteners):
+        if any(s in url.lower() for s in ['bit.ly', 'tinyurl.com', 't.co']):
             score += 30
-        
-        # Check for suspicious special characters in path
-        if '%' in url or '@' in url:
-            score += 25
-        
         return min(score, 100)
-    
-    def _check_content_analysis(self, url):
-        """Analyze page content (0-100, higher = riskier)"""
-        try:
-            # TODO: Fetch and analyze page content
-            # Check for phishing forms, malicious scripts, etc.
-            return 15
-        except:
-            return 50
-    
-    def _check_visual_similarity(self, url):
-        """Check visual similarity to known phishing sites (0-100)"""
-        try:
-            # TODO: Use screenshot comparison or ML models
-            return 10
-        except:
-            return 0
-    
+
     def _calculate_risk_score(self, checks):
-        """Calculate overall risk score from checks"""
-        weights = {
-            "domainReputation": 0.25,
-            "sslCertificate": 0.20,
-            "urlPattern": 0.25,
-            "contentAnalysis": 0.20,
-            "visualSimilarity": 0.10
-        }
-        
-        score = sum(checks[key] * weights[key] for key in checks)
+        weights = {"domainReputation": 0.3, "sslCertificate": 0.2, "urlPattern": 0.5}
+        score = sum(checks.get(k, 0) * weights.get(k, 0) for k in weights)
         return min(int(score), 100)
-    
-    def _categorize_threats(self, checks, risk_score):
-        """Categorize threats based on checks"""
-        phishing_score = (checks["domainReputation"] + checks["urlPattern"] + checks["visualSimilarity"]) // 3
-        malware_score = (checks["contentAnalysis"] + checks["sslCertificate"]) // 2
-        suspicious_score = max(0, min(50, risk_score // 2))
-        safe_score = max(0, 100 - risk_score)
-        
-        total = phishing_score + malware_score + suspicious_score + safe_score
-        
-        return {
-            "phishing": int((phishing_score / total) * 100) if total > 0 else 0,
-            "malware": int((malware_score / total) * 100) if total > 0 else 0,
-            "suspicious": int((suspicious_score / total) * 100) if total > 0 else 0,
-            "safe": int((safe_score / total) * 100) if total > 0 else 0
-        }
-    
-    def _get_details(self, checks, status):
-        """Generate detailed analysis summary"""
+
+    def _get_details(self, checks, status, ai_result):
+        if "error" not in ai_result:
+            label      = ai_result.get("label", "Safe")
+            confidence = ai_result.get("confidence", 0)
+            risk       = ai_result.get("riskScore", 0)
+            return (
+                f"AI Model Prediction: {label} "
+                f"(Confidence: {confidence}% | Risk Score: {risk}%). "
+                f"Analysis powered by XGBoost classifier."
+            )
         if status == "Dangerous":
-            return "This URL shows multiple signs of phishing or malware. Do not visit."
-        elif status == "Suspicious":
-            return "This URL has some suspicious characteristics. Proceed with caution."
-        else:
-            return "This URL appears to be safe based on our analysis."
+            return "Heuristic flags: High risk patterns detected in URL or domain reputation."
+        return "URL appears mostly safe based on heuristic checks."
