@@ -44,14 +44,14 @@ ChartJS.register(
 );
 
 export default function Home() {
-  const [url, setUrl] = useState('');
-  const [analysisResult, setAnalysisResult] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState(null);
+  const [url, setUrl] = useState(''); //Stores what the user types.
+  const [analysisResult, setAnalysisResult] = useState(null);//Stores result from backend.
+  const [isAnalyzing, setIsAnalyzing] = useState(false);//Used for loading button
+  const [error, setError] = useState(null);//Stores error messages like: invalid URL--server error
   const fileInputRef = useRef(null);
-  const location = useLocation();
+  const location = useLocation();//Used for scrolling to section.
 
-  useEffect(() => {
+  useEffect(() => {//Page scrolls smoothly to search box.
     if (location.hash === '#search-analysis') {
       setTimeout(() => {
         document.getElementById('search-analysis')?.scrollIntoView({ behavior: 'smooth' });
