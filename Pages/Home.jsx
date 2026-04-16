@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import apiService from '@/services/apiService';
+import { Html5Qrcode } from 'html5-qrcode';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -48,7 +49,12 @@ export default function Home() {
   const [analysisResult, setAnalysisResult] = useState(null);//Stores result from backend.
   const [isAnalyzing, setIsAnalyzing] = useState(false);//Used for loading button
   const [error, setError] = useState(null);//Stores error messages like: invalid URL--server error
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isQrScanning, setIsQrScanning] = useState(false);
+  const [qrError, setQrError] = useState(null);
   const fileInputRef = useRef(null);
+  const qrScannerRef = useRef(null);
+  const qrDetectedRef = useRef(false);
   const location = useLocation();//Used for scrolling to section.
 
   useEffect(() => {//Page scrolls smoothly to search box.
@@ -59,6 +65,12 @@ export default function Home() {
     }
   }, [location]);
 
+  useEffect(() => {
+    return () => {
+      stopQrScanner();
+    };
+  }, []);
+
   const isValidUrl = (string) => {
     try {
       new URL(string);
@@ -68,17 +80,17 @@ export default function Home() {
     }
   };
 
-  const handleAnalyze = async () => {
+  const analyzeTargetUrl = async (targetUrl) => {
     setError(null);
     setAnalysisResult(null);
 
     // Basic validation
-    if (!url.trim()) {
+    if (!targetUrl.trim()) {
       setError('Please enter a URL');
       return;
     }
 
-    if (!isValidUrl(url)) {
+    if (!isValidUrl(targetUrl)) {
       setError('Please enter a valid URL (e.g., https://example.com)');
       return;
     }
@@ -86,7 +98,7 @@ export default function Home() {
     setIsAnalyzing(true);
 
     try {
-      const result = await apiService.analyzeURL(url);
+      const result = await apiService.analyzeURL(targetUrl);
       setAnalysisResult(result);
 
       // Scroll to results
@@ -103,27 +115,87 @@ export default function Home() {
     }
   };
 
-  const handleQRCodeClick = async () => {
+  const handleAnalyze = async () => {
+    await analyzeTargetUrl(url);
+  };
+
+  const stopQrScanner = async () => {
+    const scanner = qrScannerRef.current;
+    if (!scanner) return;
+
     try {
-      // Request camera access
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' } // Use back camera on mobile
-      });
-
-      // TODO: Implement QR code scanning logic
-      // You can use libraries like html5-qrcode or jsQR
-      console.log('Camera accessed for QR code scanning');
-
-      // For now, just show an alert - you'll need to implement actual QR scanning
-      alert('Camera access granted. QR code scanning functionality needs to be implemented.');
-
-      // Stop the stream (you'll handle this in your QR scanner component)
-      stream.getTracks().forEach(track => track.stop());
-    } catch (error) {
-      console.error('Error accessing camera:', error);
-      alert('Unable to access camera. Please check permissions.');
+      if (scanner.isScanning) {
+        await scanner.stop();
+      }
+      await scanner.clear();
+    } catch (stopError) {
+      console.error('Error stopping QR scanner:', stopError);
+    } finally {
+      qrScannerRef.current = null;
+      setIsQrScanning(false);
     }
   };
+
+  const startQrScanner = async () => {
+    setQrError(null);
+    qrDetectedRef.current = false;
+    setIsQrScanning(true);
+
+    try {
+      const scanner = new Html5Qrcode('qr-reader');
+      qrScannerRef.current = scanner;
+
+      await scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 260, height: 260 } },
+        async (decodedText) => {
+          if (qrDetectedRef.current) return;
+          qrDetectedRef.current = true;
+
+          await stopQrScanner();
+          setIsQrModalOpen(false);
+
+          const scannedText = decodedText.trim();
+          setUrl(scannedText);
+
+          if (isValidUrl(scannedText)) {
+            await analyzeTargetUrl(scannedText);
+          } else {
+            setError(`QR detected but content is not a valid URL: ${scannedText}`);
+          }
+        },
+        () => {
+          // Ignore per-frame decode errors while camera is scanning.
+        }
+      );
+    } catch (startError) {
+      console.error('Error starting QR scanner:', startError);
+      setQrError('Unable to access camera. Please allow permission and try again.');
+      setIsQrScanning(false);
+    }
+  };
+
+  const handleQRCodeClick = async () => {
+    setIsQrModalOpen(true);
+    setQrError(null);
+  };
+
+  useEffect(() => {
+    if (!isQrModalOpen) {
+      stopQrScanner();
+      return;
+    }
+
+    // Wait for modal content to render before mounting scanner into #qr-reader.
+    const timer = setTimeout(() => {
+      startQrScanner();
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      stopQrScanner();
+    };
+  }, [isQrModalOpen]);
 
   const handleImageImportClick = () => {
     fileInputRef.current?.click();
@@ -132,16 +204,28 @@ export default function Home() {
   const handleImageFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      // TODO: Implement image analysis logic
-      console.log('Image selected:', file.name);
+      setError(null);
 
-      // You can read the file and extract URLs or analyze it
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        // Handle the image data
-        console.log('Image loaded');
-      };
-      reader.readAsDataURL(file);
+      try {
+        const decodedText = await Html5Qrcode.scanFile(file, true);
+        const scannedText = decodedText.trim();
+
+        setUrl(scannedText);
+
+        if (isValidUrl(scannedText)) {
+          await analyzeTargetUrl(scannedText);
+        } else {
+          setError(`QR detected but content is not a valid URL: ${scannedText}`);
+        }
+      } catch (scanError) {
+        console.error('QR image scan error:', scanError);
+        setError('Could not detect a QR code in this image. Please try a clearer QR image.');
+      }
+    }
+
+    // Allow selecting the same file again by resetting input value.
+    if (e.target) {
+      e.target.value = '';
     }
   };
 
@@ -910,6 +994,52 @@ export default function Home() {
           </Button> */}
         </div>
       </section>
+
+      {isQrModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Scan QR Code</h3>
+                <p className="text-sm text-slate-600">
+                  Keep camera open until a QR code is captured.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQrModalOpen(false)}
+                className="rounded-md px-2 py-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Close QR scanner"
+              >
+                X
+              </button>
+            </div>
+
+            <div id="qr-reader" className="min-h-[300px] overflow-hidden rounded-xl border border-slate-200 bg-slate-50" />
+
+            {!isQrScanning && !qrError && (
+              <p className="mt-3 text-sm text-slate-500">Starting camera...</p>
+            )}
+
+            {qrError && (
+              <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {qrError}
+              </div>
+            )}
+
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => setIsQrModalOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

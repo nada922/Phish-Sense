@@ -19,8 +19,11 @@ class URLAnalyzer:
         Analyze a URL and return threat analysis with real AI model data.
         """
         try:
+            normalized_url = self._normalize_url(url)
+            baseline_risk, baseline_reasons = self._apply_baseline_rules(normalized_url)
+
             # Call the AI Model server
-            ai_result = self._call_ai_model(url)
+            ai_result = self._call_ai_model(normalized_url)
 
             if "error" not in ai_result:
                 # ── Real AI model data is available ───────────────────────────
@@ -77,15 +80,22 @@ class URLAnalyzer:
                     "Falling back to heuristics."
                 )
                 checks = {
-                    "domainReputation": self._check_domain_reputation(url),
-                    "sslCertificate":   self._check_ssl_certificate(url),
-                    "urlPattern":       self._check_url_pattern(url),
+                    "domainReputation": self._check_domain_reputation(normalized_url),
+                    "sslCertificate":   self._check_ssl_certificate(normalized_url),
+                    "urlPattern":       self._check_url_pattern(normalized_url),
                     "contentAnalysis":  15,
                     "visualSimilarity": 10,
                 }
                 risk_score = self._calculate_risk_score(checks)
                 label      = "Phishing" if risk_score >= 70 else ("Suspicious" if risk_score >= 40 else "Safe")
                 confidence = risk_score
+
+            # Enforce baseline heuristic floor for clearly suspicious/malformed URLs.
+            if baseline_risk > risk_score:
+                risk_score = baseline_risk
+                checks["urlPattern"] = max(checks.get("urlPattern", 0), min(100, baseline_risk))
+                if baseline_risk >= 70:
+                    label = "Phishing"
 
             # Determine status from risk score
             if risk_score >= 70:
@@ -111,7 +121,7 @@ class URLAnalyzer:
                 "confidence":      confidence,
                 "checks":          checks,
                 "threats":         threats,
-                "details":         self._get_details(checks, status, ai_result),
+                "details":         self._get_details(checks, status, ai_result, baseline_reasons),
                 "timestamp":       datetime.now().isoformat(),
                 "ai_model_active": "error" not in ai_result,
             }
@@ -141,11 +151,27 @@ class URLAnalyzer:
 
     def _check_domain_reputation(self, url):
         try:
-            domain = urlparse(url).netloc
-            suspicious_keywords = ['verify', 'update', 'confirm', 'reset', 'login', 'secure', 'account']
-            if any(kw in domain.lower() for kw in suspicious_keywords):
-                return 65
-            return 20
+            parsed = urlparse(url)
+            domain = (parsed.hostname or "").lower()
+            if not domain:
+                return 80
+
+            score = 10
+            suspicious_keywords = [
+                'verify', 'update', 'confirm', 'reset', 'login', 'secure', 'account',
+                'wallet', 'recover', 'password', 'signin', 'auth'
+            ]
+
+            if any(kw in domain for kw in suspicious_keywords):
+                score += 45
+            if domain.startswith("xn--"):
+                score += 30
+            if domain.count('-') >= 3:
+                score += 20
+            if len(domain.split('.')) > 4:
+                score += 20
+
+            return min(score, 100)
         except Exception:
             return 50
 
@@ -154,7 +180,11 @@ class URLAnalyzer:
 
     def _check_url_pattern(self, url):
         score = 0
-        if re.search(r'[^a-zA-Z0-9.-]', urlparse(url).netloc):
+        parsed = urlparse(url)
+        netloc = parsed.netloc
+        path_and_query = f"{parsed.path}?{parsed.query}".lower()
+
+        if re.search(r'[^a-zA-Z0-9.-]', netloc):
             score += 20
         if re.match(r'https?://\d+\.\d+\.\d+\.\d+', url):
             score += 40
@@ -162,6 +192,14 @@ class URLAnalyzer:
             score += 15
         if any(s in url.lower() for s in ['bit.ly', 'tinyurl.com', 't.co']):
             score += 30
+        if "@" in url:
+            score += 30
+        if url.count("//") > 1:
+            score += 20
+        if re.search(r'(login|verify|secure|update|confirm|password|signin)', path_and_query):
+            score += 20
+        if parsed.query.count('=') > 4:
+            score += 10
         return min(score, 100)
 
     def _calculate_risk_score(self, checks):
@@ -169,16 +207,69 @@ class URLAnalyzer:
         score = sum(checks.get(k, 0) * weights.get(k, 0) for k in weights)
         return min(int(score), 100)
 
-    def _get_details(self, checks, status, ai_result):
+    def _normalize_url(self, url):
+        """Ensure URL has a scheme so parsing is consistent."""
+        normalized = (url or "").strip()
+        if normalized and not re.match(r'^https?://', normalized, flags=re.IGNORECASE):
+            normalized = f"http://{normalized}"
+        return normalized
+
+    def _apply_baseline_rules(self, url):
+        """
+        Return minimum risk and reasons for malformed/obviously suspicious URLs.
+        This prevents clear phishing patterns from being marked Safe.
+        """
+        reasons = []
+        try:
+            parsed = urlparse(url)
+            hostname = (parsed.hostname or "").lower()
+
+            if parsed.scheme not in ("http", "https"):
+                reasons.append("Unsupported URL scheme")
+            if not hostname:
+                reasons.append("Missing hostname")
+            if ' ' in url:
+                reasons.append("URL contains spaces")
+            if "@" in url:
+                reasons.append("Contains @ redirection pattern")
+            if hostname and '.' not in hostname and hostname != "localhost":
+                reasons.append("Hostname is not fully qualified")
+            if hostname and re.search(r'(paypa[l1]|g00gle|micr0soft|amaz0n|faceb00k)', hostname):
+                reasons.append("Possible typosquatting domain")
+            if re.search(r'(login|verify|secure|update|confirm|reset|password)', url.lower()):
+                reasons.append("Credential-themed URL pattern detected")
+
+            if not reasons:
+                return 0, []
+
+            if "Missing hostname" in reasons or "Unsupported URL scheme" in reasons:
+                return 85, reasons
+            if "Possible typosquatting domain" in reasons:
+                return 80, reasons
+            if "Contains @ redirection pattern" in reasons:
+                return 75, reasons
+            return 55, reasons
+        except Exception:
+            return 70, ["URL parsing failed"]
+
+    def _get_details(self, checks, status, ai_result, baseline_reasons=None):
+        baseline_reasons = baseline_reasons or []
         if "error" not in ai_result:
             label      = ai_result.get("label", "Safe")
             confidence = ai_result.get("confidence", 0)
             risk       = ai_result.get("riskScore", 0)
-            return (
+            detail = (
                 f"AI Model Prediction: {label} "
                 f"(Confidence: {confidence}% | Risk Score: {risk}%). "
                 f"Analysis powered by XGBoost classifier."
             )
+            if baseline_reasons:
+                detail += " Rule-based safeguards triggered: " + "; ".join(baseline_reasons) + "."
+            return detail
         if status == "Dangerous":
-            return "Heuristic flags: High risk patterns detected in URL or domain reputation."
-        return "URL appears mostly safe based on heuristic checks."
+            detail = "Heuristic flags: High risk patterns detected in URL or domain reputation."
+        else:
+            detail = "URL appears mostly safe based on heuristic checks."
+        if baseline_reasons:
+            detail += " Rule-based safeguards triggered: " + "; ".join(baseline_reasons) + "."
+        return detail
