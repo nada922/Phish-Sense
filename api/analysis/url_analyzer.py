@@ -21,11 +21,20 @@ class URLAnalyzer:
         try:
             normalized_url = self._normalize_url(url)
             baseline_risk, baseline_reasons = self._apply_baseline_rules(normalized_url)
+            heuristic_checks = {
+                "domainReputation": self._check_domain_reputation(normalized_url),
+                "sslCertificate":   self._check_ssl_certificate(normalized_url),
+                "urlPattern":       self._check_url_pattern(normalized_url),
+                "contentAnalysis":  15,
+                "visualSimilarity": 10,
+            }
+            heuristic_risk = self._calculate_risk_score(heuristic_checks)
 
             # Call the AI Model server
             ai_result = self._call_ai_model(normalized_url)
+            ai_result = self._normalize_ai_result(ai_result)
 
-            if "error" not in ai_result:
+            if not ai_result.get("error", False):
                 # ── Real AI model data is available ───────────────────────────
                 features   = ai_result.get("features", {})
                 risk_score = ai_result.get("riskScore", 0)
@@ -73,20 +82,38 @@ class URLAnalyzer:
                     "visualSimilarity": int(confidence) if label == "Phishing" else 0,
                 }
 
+                # Guardrail: if AI flags extreme risk for URLs that pass rule-based checks,
+                # treat the AI score as an outlier and use heuristic scoring.
+                ai_outlier = (
+                    risk_score >= 85
+                    and baseline_risk == 0
+                    and heuristic_risk <= 20
+                )
+                if ai_outlier:
+                    logger.warning(
+                        "AI outlier detected for URL %s. "
+                        "Using heuristic score instead of AI risk %.2f",
+                        normalized_url,
+                        risk_score,
+                    )
+                    checks = heuristic_checks
+                    risk_score = heuristic_risk
+                    label = "Suspicious" if risk_score >= 40 else "Safe"
+                    confidence = max(40, min(95, 100 - risk_score))
+                    ai_result["guardrail_applied"] = True
+                else:
+                    # Normal path: blend model risk with deterministic checks.
+                    blended_risk = (0.65 * float(risk_score)) + (0.35 * max(heuristic_risk, baseline_risk))
+                    risk_score = min(100, int(round(blended_risk)))
+
             else:
                 # ── Fallback: AI server is down – use lightweight heuristics ──
                 logger.warning(
                     f"AI Model Server unavailable: {ai_result.get('message')}. "
                     "Falling back to heuristics."
                 )
-                checks = {
-                    "domainReputation": self._check_domain_reputation(normalized_url),
-                    "sslCertificate":   self._check_ssl_certificate(normalized_url),
-                    "urlPattern":       self._check_url_pattern(normalized_url),
-                    "contentAnalysis":  15,
-                    "visualSimilarity": 10,
-                }
-                risk_score = self._calculate_risk_score(checks)
+                checks = heuristic_checks
+                risk_score = heuristic_risk
                 label      = "Phishing" if risk_score >= 70 else ("Suspicious" if risk_score >= 40 else "Safe")
                 confidence = risk_score
 
@@ -146,6 +173,34 @@ class URLAnalyzer:
             return {"error": True, "message": f"API returned status {response.status_code}"}
         except Exception as e:
             return {"error": True, "message": str(e)}
+
+    def _normalize_ai_result(self, ai_result):
+        """
+        Ensure AI response has expected shape.
+        Falls back to error payload when schema is invalid.
+        """
+        if not isinstance(ai_result, dict):
+            return {"error": True, "message": "AI response is not a JSON object"}
+
+        if ai_result.get("error"):
+            return ai_result
+
+        features = ai_result.get("features")
+        if not isinstance(features, dict):
+            return {"error": True, "message": "AI response has invalid 'features' format"}
+
+        normalized = dict(ai_result)
+        normalized["features"] = features
+
+        # Coerce numeric fields to safe values.
+        for key in ("riskScore", "confidence"):
+            value = normalized.get(key, 0)
+            try:
+                normalized[key] = float(value)
+            except (TypeError, ValueError):
+                normalized[key] = 0.0
+
+        return normalized
 
     # ── Heuristic fallbacks (only used when AI server is unavailable) ──────────
 
@@ -258,11 +313,17 @@ class URLAnalyzer:
             label      = ai_result.get("label", "Safe")
             confidence = ai_result.get("confidence", 0)
             risk       = ai_result.get("riskScore", 0)
-            detail = (
-                f"AI Model Prediction: {label} "
-                f"(Confidence: {confidence}% | Risk Score: {risk}%). "
-                f"Analysis powered by XGBoost classifier."
-            )
+            if ai_result.get("guardrail_applied"):
+                detail = (
+                    "AI output looked inconsistent with rule-based checks, so "
+                    "risk was recalibrated using deterministic URL heuristics."
+                )
+            else:
+                detail = (
+                    f"AI Model Prediction: {label} "
+                    f"(Confidence: {confidence}% | Risk Score: {risk}%). "
+                    f"Analysis powered by XGBoost classifier."
+                )
             if baseline_reasons:
                 detail += " Rule-based safeguards triggered: " + "; ".join(baseline_reasons) + "."
             return detail
